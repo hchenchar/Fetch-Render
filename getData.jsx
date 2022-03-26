@@ -1,22 +1,23 @@
 const artists = [
     {
-    id: 'degas',
-    name: 'Edgar Degas'
+        id: 'degas',
+        name: 'Edgar Degas'
     },
     {
-    id: 'matisse',
-    name: 'Henry Matisse'
+        id: 'matisse',
+        name: 'Henry Matisse'
     },
     {
-    id: 'monet',
-    name: 'Claude Monet'
+        id: 'monet',
+        name: 'Claude Monet'
     },
     {
-    id: 'van-gogh',
-    name: 'Vincent van Gogh'
+        id: 'van-gogh',
+        name: 'Vincent van Gogh'
     }
 ]
 const Pagination = ({ items, pageSize, onPageChange }) => {
+    // Implement the Pagination component
     const { Button } = ReactBootstrap;
     if (items.length <= 1) return null;
     let num = Math.ceil(items.length / pageSize);
@@ -34,19 +35,16 @@ const Pagination = ({ items, pageSize, onPageChange }) => {
         </nav>
     );
 };
-
 const range = (start, end) => {
     return Array(end - start + 1)
         .fill(0)
         .map((item, i) => start + i);
 };
-
 function paginate(items, pageNumber, pageSize) {
     const start = (pageNumber - 1) * pageSize;
     let page = items.slice(start, start + pageSize);
     return page;
 }
-
 const useDataApi = (initialUrl, initialData) => {
     const { useState, useEffect, useReducer } = React;
     const [url, setUrl] = useState(initialUrl);
@@ -56,10 +54,10 @@ const useDataApi = (initialUrl, initialData) => {
         isError: false,
         data: initialData,
     });
-
     useEffect(() => {
         let didCancel = false;
         const fetchData = async () => {
+            // Get data from a remote source
             dispatch({ type: "FETCH_INIT" });
             try {
                 const result = await axios(url);
@@ -78,7 +76,7 @@ const useDataApi = (initialUrl, initialData) => {
         };
     }, [url]);
     return [state, setUrl];
-}
+};
 const dataFetchReducer = (state, action) => {
     switch (action.type) {
         case 'FETCH_INIT':
@@ -110,8 +108,10 @@ function App() {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 1;
     const [{ data, isLoading, isError }, doFetch] = useDataApi(
-        'https://api.artic.edu/api/v1/artworks/search?q=degas&&fields=id,title',
-        { data: [], }
+        'https://api.artic.edu/api/v1/artworks/search?q=degas&&fields=id,title,image_id',
+        {
+            data: [],
+        }
     );
     const handlePageChange = (e) => {
         setCurrentPage(Number(e.target.textContent));
@@ -122,10 +122,9 @@ function App() {
         console.log(`currentPage: ${currentPage}`);
     }
     const handleSelect = (e) => {
-        // New query search
-        doFetch(`https://api.artic.edu/api/v1/artworks/search?q=${e.target.value}&&fields=id,title`);
+        doFetch(`https://api.artic.edu/api/v1/artworks/search?q=${e.target.value}&&fields=id,title,image_id`);
         setCurrentPage(1);
-    };
+    }
     return (
         <Fragment>
             <form id="select-artist">
@@ -140,9 +139,14 @@ function App() {
                 <div>Loading ...</div>
             ) : (
                 <ul>
-                    {page.map(({ id, title }) => (
+                    {page.map(({ id, title, image_id }) => (
                         <li key={id} className="list-item">
                             <a href={`https://www.artic.edu/artworks/${id}`}><h2>{title}</h2></a>
+                            <div className="image-wrapper">
+                                <img
+                                    src={`https://www.artic.edu/iiif/2/${image_id}/full/843,/0/default.jpg`}
+                                    alt={title} />
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -154,7 +158,6 @@ function App() {
             ></Pagination>
         </Fragment>
     );
-                    }
-
+}
 // ========================================
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById('root'));
